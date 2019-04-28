@@ -27,7 +27,7 @@ face_recognizer.build(0.1)
 print("Done..")
 
 # Load Network
-print("Loading YOLOv3 weights..."
+print("Loading YOLOv3 weights...")
 weight_path = os.path.sep.join([args.yolo, "yolov3.weights"])
 config_path = os.path.sep.join([args.yolo, "yolov3.cfg"])
 net = cv2.dnn.readNetFromDarknet(config_path, weight_path)
