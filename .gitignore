@@ -102,3 +102,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# yolo weights
+yolo/yolov3.weights
+
+# face recognition model
+face_module/work_space/save/model_ir_se50.pth
