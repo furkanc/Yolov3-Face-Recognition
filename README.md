@@ -45,13 +45,15 @@ data/facebank/
 
 #### - Run
 
-- ``yolov3.py -i INPUT -o OUTPUT -y YOLO [-c CONFIDENCE] [-n NMS]``
-
+- ``yolov3.py [-h] -i INPUT -o OUTPUT -y YOLO [-c CONFIDENCE] [-n NMS] [-f FACE_EMBEDDINGS]``
 Example
 - ``yolov3.py -i inputs/harvard.mp4 -o outputs/out -y yolo/ `` 
 #### Arguments
 ```
--i INPUT, --input INPUT
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -i INPUT, --input INPUT
                         Path to input video
   -o OUTPUT, --output OUTPUT
                         Path to output video
@@ -59,7 +61,8 @@ Example
   -c CONFIDENCE, --confidence CONFIDENCE
                         Confidence threshold
   -n NMS, --nms NMS     Non-maximum suppression threshold
-
+  -f FACE_EMBEDDINGS, --face_embeddings FACE_EMBEDDINGS
+                        Prepare a new Face embeddings file or not
 ```
 - NMS default  **0.4** 
 - Confidence default **0.5**
