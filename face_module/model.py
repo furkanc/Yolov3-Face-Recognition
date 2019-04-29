@@ -61,7 +61,7 @@ class bottleneck_IR_SE(Module):
             self.shortcut_layer = MaxPool2d(1, stride)
         else:
             self.shortcut_layer = Sequential(
-                Conv2d(in_channel, depth, (1, 1), stride ,bias=False), 
+                Conv2d(in_channel, depth, (1, 1), stride ,bias=False),
                 BatchNorm2d(depth))
         self.res_layer = Sequential(
             BatchNorm2d(in_channel),
@@ -78,7 +78,7 @@ class bottleneck_IR_SE(Module):
 
 class Bottleneck(namedtuple('Block', ['in_channel', 'depth', 'stride'])):
     '''A named tuple describing a ResNet block.'''
-    
+
 def get_block(in_channel, depth, num_units, stride = 2):
   return [Bottleneck(in_channel, depth, stride)] + [Bottleneck(depth, depth, 1) for i in range(num_units-1)]
 
@@ -116,10 +116,10 @@ class Backbone(Module):
             unit_module = bottleneck_IR
         elif mode == 'ir_se':
             unit_module = bottleneck_IR_SE
-        self.input_layer = Sequential(Conv2d(3, 64, (3, 3), 1, 1 ,bias=False), 
-                                      BatchNorm2d(64), 
+        self.input_layer = Sequential(Conv2d(3, 64, (3, 3), 1, 1 ,bias=False),
+                                      BatchNorm2d(64),
                                       PReLU(64))
-        self.output_layer = Sequential(BatchNorm2d(512), 
+        self.output_layer = Sequential(BatchNorm2d(512),
                                        Dropout(drop_ratio),
                                        Flatten(),
                                        Linear(512 * 7 * 7, 512),
@@ -132,15 +132,19 @@ class Backbone(Module):
                                 bottleneck.depth,
                                 bottleneck.stride))
         self.body = Sequential(*modules)
-    
+        self.input_layer.eval()
+        self.body.eval()
+        self.output_layer.eval()
+
     def forward(self,x):
+
         x = self.input_layer(x)
         x = self.body(x)
         x = self.output_layer(x)
         return l2_norm(x)
 
 ##################################  MobileFaceNet #############################################################
-    
+
 class Conv_block(Module):
     def __init__(self, in_c, out_c, kernel=(1, 1), stride=(1, 1), padding=(0, 0), groups=1):
         super(Conv_block, self).__init__()
@@ -208,7 +212,7 @@ class MobileFaceNet(Module):
         self.conv_6_flatten = Flatten()
         self.linear = Linear(512, embedding_size, bias=False)
         self.bn = BatchNorm1d(embedding_size)
-    
+
     def forward(self, x):
         out = self.conv1(x)
 
@@ -217,7 +221,7 @@ class MobileFaceNet(Module):
         out = self.conv_23(out)
 
         out = self.conv_3(out)
-        
+
         out = self.conv_34(out)
 
         out = self.conv_4(out)
@@ -240,7 +244,7 @@ class MobileFaceNet(Module):
 ##################################  Arcface head #############################################################
 
 class Arcface(Module):
-    # implementation of additive margin softmax loss in https://arxiv.org/abs/1801.05599    
+    # implementation of additive margin softmax loss in https://arxiv.org/abs/1801.05599
     def __init__(self, embedding_size=512, classnum=51332,  s=64., m=0.5):
         super(Arcface, self).__init__()
         self.classnum = classnum
@@ -278,10 +282,10 @@ class Arcface(Module):
         output *= self.s # scale up in order to make softmax work, first introduced in normface
         return output
 
-##################################  Cosface head #############################################################    
-    
+##################################  Cosface head #############################################################
+
 class Am_softmax(Module):
-    # implementation of additive margin softmax loss in https://arxiv.org/abs/1801.05599    
+    # implementation of additive margin softmax loss in https://arxiv.org/abs/1801.05599
     def __init__(self,embedding_size=512,classnum=51332):
         super(Am_softmax, self).__init__()
         self.classnum = classnum

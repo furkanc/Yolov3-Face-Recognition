@@ -2,7 +2,8 @@ import cv2
 import argparse
 import os
 import numpy as np
-from face_module.face_recog import FaceRecog
+from face_recog import FaceRecog
+import random
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", required=True, help="Path to input video")
@@ -10,6 +11,7 @@ parser.add_argument("-o", "--output", required=True, help="Path to output video"
 parser.add_argument("-y", "--yolo", required=True, help="Path to YOLO")
 parser.add_argument("-c", "--confidence", type=float, default=0.4, help="Confidence threshold")
 parser.add_argument("-n", "--nms", type=float, default=0.5, help="Non-maximum suppression threshold")
+parser.add_argument("-f", "--face_embeddings", type=bool, default=True, help="Prepare a new Face embeddings file or not")
 args = parser.parse_args()
 
 # Load class names
@@ -20,10 +22,15 @@ with open(class_path, 'rt') as f:
     CLASSES = f.read().rstrip('\n').split('\n')
 print("Done..")
 
+# Colors for bounding boxes
+np.random.seed(12)
+COLORS = np.random.randint(0, 255, size=(len(CLASSES), 3), dtype="uint8")
+
+
 # Load Face Recognize Module
 print("Building Face Recognition Module..")
 face_recognizer = FaceRecog()
-face_recognizer.build(0.1)
+face_recognizer.build(0.1, args.face_embeddings)
 print("Done..")
 
 # Load Network
@@ -43,6 +50,8 @@ fps = cap.get(cv2.CAP_PROP_FPS)
 writer = cv2.VideoWriter('{}.avi'.format(args.output),
                          cv2.VideoWriter_fourcc(*'XVID'), int(fps), (1280, 720))
 (W, H) = (None, None)
+
+print("Detection has started.It may take a while...")
 while True:
     hasFrame, frame = cap.read()
 
@@ -100,19 +109,21 @@ while True:
             (x, y) = (boxes[i][0], boxes[i][1])
             (w, h) = (boxes[i][2], boxes[i][3])
 
+            color = [int(c) for c in COLORS[class_IDs[i]]]
+            text_color = color.copy()
             # draw the bounding box
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (154, 45, 123), 5)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), color, 5)
             class_id = CLASSES[class_IDs[i]]
+
             # check if person identified
             # if the person identified , give the label name as its name.
             if class_id == 'person':
-                name = face_recognizer.find_face(frame, x, y, w, h)
-                print(name)
+                name, text_color = face_recognizer.find_face(frame, x, y, w, h)
                 text = "{}: {:.4f}".format(name, confs[i])
             else:
                 text = "{}: {:.4f}".format(CLASSES[class_IDs[i]], confs[i])
 
-            cv2.putText(frame, text, (x, y - 5), cv2.FONT_ITALIC, 0.9, (0, 255, 0), 2)
+            cv2.putText(frame, text, (x, y - 5), cv2.FONT_ITALIC, 0.9, text_color, 2)
 
     writer.write(frame)
 print("Program succesfully ended...")

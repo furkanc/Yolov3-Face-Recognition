@@ -2,6 +2,12 @@
 # Yolov3-Face-Recognition
 This project detects objects with Yolo-v3 and tries to recognize objects that are classified as "person" in Yolo. 
 
+
+## Output Sample 
+
+![Screenshot](imgs/sample.png)
+
+
 ## Getting Started
 
 ### Prerequisites
@@ -20,6 +26,24 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```  
 ## Usage 
+
+##### - Prepare Data
+
+- Create a folder structure in **face_module/data/facebank/** for faces that you want to recognize.
+
+```
+data/facebank/
+        ---> id1/
+            ---> id1_1.jpg
+        ---> id2/
+            ---> id2_1.jpg
+        ---> id3/
+            ---> id3_1.jpg
+           ---> id3_2.jpg
+
+```
+
+#### - Run
 
 - ``yolov3.py -i INPUT -o OUTPUT -y YOLO [-c CONFIDENCE] [-n NMS]``
 

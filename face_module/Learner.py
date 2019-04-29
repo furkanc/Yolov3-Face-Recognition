@@ -16,7 +16,6 @@ import bcolz
 
 class face_learner(object):
     def __init__(self, conf, inference=False):
-        print(conf)
         if conf.use_mobilfacenet:
             self.model = MobileFaceNet(conf.embedding_size).to(conf.device)
             print('MobileFaceNet model generated')
@@ -235,6 +234,7 @@ class face_learner(object):
         names : recorded names of faces in facebank
         tta : test time augmentation (hfilp, that's all)
         '''
+        self.threshold = 1.5
         embs = []
         for img in faces:
             if tta:
